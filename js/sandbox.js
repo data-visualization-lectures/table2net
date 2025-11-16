@@ -11,15 +11,15 @@ var fileLoader = {
     errorHandler:function(evt){
         switch(evt.target.error.code) {
             case evt.target.error.NOT_FOUND_ERR:
-                alert('File Not Found!');
+                alert('ファイルが見つかりません！');
                 break;
             case evt.target.error.NOT_READABLE_ERR:
-                alert('File is not readable');
+                alert('ファイルを読み込めません');
                 break;
             case evt.target.error.ABORT_ERR:
                 break; // noop
             default:
-                alert('An error occurred reading this file.');
+                alert('ファイル読み込み中にエラーが発生しました。');
         };
     },
     updateProgress:function(evt){
@@ -47,7 +47,7 @@ var fileLoader = {
         fileLoader.reader.onerror = fileLoader.errorHandler;
         fileLoader.reader.onprogress = fileLoader.updateProgress;
         fileLoader.reader.onabort = function(e) {
-            alert('File read cancelled');
+            alert('ファイル読み込みはキャンセルされました');
         };
         fileLoader.reader.onloadstart = function(e) {
             var bar = $(target).parent().siblings('.progress').children('.bar')
@@ -58,7 +58,7 @@ var fileLoader = {
             // Ensure that the progress bar displays 100% at the end.
             var bar = $(target).parent().siblings('.progress').children('.bar')
             bar.css('width', '100%')
-            bar.text('Reading: 100% - parsing...')
+            bar.text('読み込み: 100% - 解析中...')
             setTimeout("fileLoader.finalize('"+target.parentNode.parentNode.id+"');", 2000)
         }
         
@@ -73,14 +73,14 @@ var fileLoader = {
                 // Add the row number to the table
                 table.forEach(function(row, i){
                     if(i==0)
-                        row.unshift('Row number')
+                        row.unshift('行番号')
                     else
                        row.unshift(''+i)
                 })
 
                 $('#'+id+' .progress').hide()
                 $('#'+id+' .alert').addClass('alert-success')
-                $('#'+id+' .alert').html('Parsing successful. '+table[0].length+' columns and '+table.length+' rows. <button type="button" class="close" data-dismiss="alert">&times;</button>')
+                $('#'+id+' .alert').html('解析に成功しました。'+table[0].length+'列、'+table.length+'行です。 <button type="button" class="close" data-dismiss="alert">&times;</button>')
                 $('#'+id+' .alert').show()
 
                 $("#validation").addClass("open");
@@ -88,7 +88,7 @@ var fileLoader = {
                 buildUI();
                 break;
             default:
-                alert('Unknown file loader');
+            alert('不明なファイルローダーです');
                 break;
         }
     }
@@ -97,7 +97,7 @@ var fileLoader = {
 
 function buildUI(){
     $("#UI").append(
-        $('<div/>').html('<h4>Table preview</h4><div id="dataPreview"><table class="table table-condensed table-bordered">'
+        $('<div/>').html('<h4>表のプレビュー</h4><div id="dataPreview"><table class="table table-condensed table-bordered">'
         +table.filter(function(d,i){return i<10})
             .map(function(row, i){return '<tr>'
             +row.map(function(d){return ((i==0)?('<th>'):('<td>'))+d.substr(0,200)+((i==0)?('</th>'):('</td>'));})
@@ -109,16 +109,16 @@ function buildUI(){
             $('<div class="span12"/>').append(
                 $('<hr/>')
             ).append(
-                $('<h2/>').text('1. Type of Network')
+                $('<h2/>').text('1. ネットワークの種類')
             ).append(
                 $('<div class="row"/>').append(
                     $('<div class="span6"/>').append(
                         $('<select id="typeOfGraph" class="span6"/>')
-                            .append($('<option value="none">Choose type of network...</option>'))
-                            .append($('<option value="mono">Normal (one type of node)</option>'))
-                            .append($('<option value="bipartite">Bipartite (two types of nodes)</option>'))
-                            .append($('<option value="citation">Citations</option>'))
-                            .append($('<option value="table">No link</option>'))
+                            .append($('<option value="none">ネットワークの種類を選択...</option>'))
+                            .append($('<option value="mono">通常（単一ノード）</option>'))
+                            .append($('<option value="bipartite">二部（2種類のノード）</option>'))
+                            .append($('<option value="citation">引用</option>'))
+                            .append($('<option value="table">リンクなし</option>'))
                             .on('change', buildUI_set)
                     ).append(
                         $('<div id="typeOfGraph_img"/>')
@@ -127,21 +127,21 @@ function buildUI(){
                 ).append(
                     $('<div class="span6" id="typeOfGraph_help"/>').append(
                         $('<p class="text-info"/>').text(
-                            'You may extract different types of networks from a table. It depends on how you use columns to build the nodes and the edges. '
+                            '表の列の使い方次第で、さまざまな種類のネットワークを抽出できます。'
                         )
                     ).append(
                         $('<p class="text-info"/>').append(
                             $('<ul/>').append(
-                                $('<li><img id="network_type1_img" class="pull-right" src="res/xyx_disabled.png"/><strong>Normal: </strong> if you want a single type of nodes, for instance <em>authors</em>. They will be linked when they share a value in another column, for instance <em>papers</em>.</li>')
+                                $('<li><img id="network_type1_img" class="pull-right" src="res/xyx_disabled.png"/><strong>通常： </strong><em>著者</em>のような単一ノードを扱い、別列（例：<em>論文</em>）に共通する値を持つ行をつなぎます。</li>')
                                     .css('padding-bottom', '20px')
                             ).append(
-                                $('<li><img id="network_type1_img" class="pull-right" src="res/xy_disabled.png"/><strong>Bipartite: </strong> if you want two types of nodes, for instance <em>authors</em> and <em>papers</em>, they will be linked whey they appear in the same row of the table.</li>')
+                                $('<li><img id="network_type1_img" class="pull-right" src="res/xy_disabled.png"/><strong>二部： </strong><em>著者</em>と<em>論文</em>など2種類のノードが同じ行に出現したときにつながります。</li>')
                                     .css('padding-bottom', '20px')
                             ).append(
-                                $('<li><img id="network_type1_img" class="pull-right" src="res/xx_disabled.png"/><strong>Citation: </strong> if you have a column containing references to another one, for instance <em>paper title</em> and <em>cited papers (title)</em></li>')
+                                $('<li><img id="network_type1_img" class="pull-right" src="res/xx_disabled.png"/><strong>引用： </strong>ある列が別の列を参照する場合（例：<em>論文タイトル</em>と<em>引用論文タイトル</em>）に利用します。</li>')
                                     .css('padding-bottom', '20px')
                             ).append(
-                                $('<li><img id="network_type1_img" class="pull-right" src="res/x_disabled.png"/><strong>No link: </strong> a single type of nodes, without link</li>')
+                                $('<li><img id="network_type1_img" class="pull-right" src="res/x_disabled.png"/><strong>リンクなし： </strong>リンクを作らない単一ノードです。</li>')
                                     .css('padding-bottom', '20px')
                             )
                         )
@@ -167,7 +167,7 @@ function buildUI_set(){
     } else if($("#typeOfGraph").val() == "mono"){
         $('#typeOfGraph_img').html('<p><img id="network_type1_img" src="res/xyx.png"/></p>')
             .append(
-                $('<p>You will have to choose:<ul><li>Which column <img src="res/x_node.png"> will define the nodes</li><li>Which column <img src="res/y_edge.png"> will define the links</li></ul></p>')
+                $('<p>次の項目を選択してください：<ul><li><img src="res/x_node.png"> ノードに該当する列</li><li><img src="res/y_edge.png"> リンクに該当する列</li></ul></p>')
             )
 
         nodesColumn_build("#buildUI_result");
@@ -175,7 +175,7 @@ function buildUI_set(){
     } else if($("#typeOfGraph").val() == "bipartite"){
         $('#typeOfGraph_img').html('<img id="network_type1_img" src="res/xy.png"/>')
             .append(
-                $('<p>You will have to choose:<ul><li>Which column <img src="res/x_node.png"> will define the first type of nodes</li><li>Which column <img src="res/y_node.png"> will define the second type of nodes</li></ul></p>')
+                $('<p>次の項目を選択してください：<ul><li><img src="res/x_node.png"> 第1種のノードになる列</li><li><img src="res/y_node.png"> 第2種のノードになる列</li></ul></p>')
             )
 
         nodesColumn1_build("#buildUI_result");
@@ -183,7 +183,7 @@ function buildUI_set(){
     } else if($("#typeOfGraph").val() == "citation"){
         $('#typeOfGraph_img').html('<img id="network_type1_img" src="res/xx.png"/>')
             .append(
-                $('<p>You will have to choose:<ul><li>Which column <img src="res/x_node.png"> contains the identifiers of the nodes</li><li>Which column <img src="res/edge.png"> contains the identifiers of the cited nodes</li></ul></p>')
+                $('<p>次の項目を選択してください：<ul><li><img src="res/x_node.png"> ノードの識別子を含む列</li><li><img src="res/edge.png"> 引用先ノードの識別子を含む列</li></ul></p>')
             )
 
         nodesColumn_build("#buildUI_result");
@@ -191,37 +191,37 @@ function buildUI_set(){
     } else if($("#typeOfGraph").val() == "table"){
         $('#typeOfGraph_img').html('<img id="network_type1_img" src="res/x.png"/>')
             .append(
-                $('<p>You will have to choose:<ul><li>Which column <img src="res/x_node.png"> defines the nodes</li></ul></p>')
+                $('<p>次の項目を選択してください：<ul><li><img src="res/x_node.png"> ノードを定義する列</li></ul></p>')
             )
 
         nodesColumn_build("#buildUI_result");
             
     } else {
-        $("#buildUI_result").html('<div class="alert"><strong>Warning!</strong> This option is not supported yet.</div>')
+        $("#buildUI_result").html('<div class="alert"><strong>警告：</strong>このオプションはまだ対応していません。</div>')
     }
     $("#submitButton").hide();
 }
 
 function nodesColumn_build(parentId){
     $(parentId).html('').append(
-        $('<hr/><h2>2. Nodes</h2>')
+        $('<hr/><h2>2. ノード</h2>')
     ).append(
-        $('<h4><img src="res/x_node.png"> Which column defines the nodes?</h4>')
+        $('<h4><img src="res/x_node.png"> どの列がノードを定義しますか？</h4>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<select id="nodesCategory" class="span6"/>')
-                    .append($('<option value="none">Choose a column...</option>'))
+                    .append($('<option value="none">列を選択してください...</option>'))
                     .append(table[0].map(function(d,i){return '<option value="'+i+'">'+d+'</option>';}))
                     .on('change', nodesColumn_set)
             ).append(
                 $('<select id="nodesMultipleSeparator" class="span6"/>')
-                    .append($('<option value="nomultiples">One expression per cell</option>'))
-                    .append($('<option value="coma">Comma-separated ","</option>'))
-                    .append($('<option value="semicolon">Semicolon-separated ";"</option>'))
-                    .append($('<option value="dash">Dash-separated "-"</option>'))
-                    .append($('<option value="space">Space-separated " "</option>'))
-                    .append($('<option value="pipe">Pipe-separated "|"</option>'))
+                    .append($('<option value="nomultiples">セルごとに1項目</option>'))
+                    .append($('<option value="coma">カンマ区切り ","</option>'))
+                    .append($('<option value="semicolon">セミコロン区切り ";"</option>'))
+                    .append($('<option value="dash">ダッシュ区切り "-"</option>'))
+                    .append($('<option value="space">スペース区切り " "</option>'))
+                    .append($('<option value="pipe">パイプ区切り "|"</option>'))
                     .on('change', nodesColumn_set)
             ).append(
                 $('<div class="row"/>').append(
@@ -231,20 +231,19 @@ function nodesColumn_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'The expressions in this column will define the nodes. Some cleaning will be applied (unnecessary spaces, upper case...)'
+                    'この列の値がノードになります。空白や大文字などの不要な違いは自動的に整形されます。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>If you have multiple items per cell, specify the separator</strong>. '
-                    +'For instance you have a list of papers, you want a graph of authors, and the cells look like this: "Enstein; Erdös; Bacon". '
-                    +'You have multiple authors per cell. Then you have to set the separator, here the semicolon ";".'
+                    '<strong>1セルに複数の項目がある場合は区切り文字を指定してください</strong>。'
+                    +'例えば論文リストで<em>著者</em>のグラフを作る場合、セルが "Enstein; Erdös; Bacon" のようになっていればセミコロン ";" を設定してください。'
                 )
             )
         )
     ).append(
         $('<div class="row"/>').css('margin-top', '20px').append(
             $('<div class="span12"/>').append(
-                $('<h4><img src="res/x_node.png"> Do you want nodes attributes?</h4>')
+                $('<h4><img src="res/x_node.png"> このノードに属性を追加しますか？</h4>')
             )
         )
     ).append(
@@ -255,13 +254,11 @@ function nodesColumn_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'You may transfer the content of some columns to the network as attributes of the nodes. '
-                    +'This feature is only useful under certain circumstances, when the attribute columns actually qualify the node column. '
-                    +'Else, it is possible (and probable) that multiple attributes correspond to a single node. If this happens, the multiple values will be concatenated with the | separator (pipe). '
+                    '一部の列の内容をノードの属性としてネットワークに登録できます。属性列がノード列に適合する場合に有効で、それ以外では1つのノードに複数の属性が対応する可能性があり、その場合は値をパイプ "|" で連結します。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>Warning: </strong>Adding metadata may cause a memory overload (a browser crash, not dangerous but you won\'t get any result)'
+                    '<strong>警告： </strong>メタデータを追加するとメモリ不足（ブラウザのクラッシュと結果未取得）になるおそれがあります。'
                 )
             )
         )
@@ -283,7 +280,7 @@ function nodesColumn_build(parentId){
             query.callback(data);
         },
         multiple:true,
-        placeholder: "Select one or several columns",
+        placeholder: "1つ以上の列を選択",
         allowClear: true
     })
     //$("#nodes_metadata").on("change", function(e){})
@@ -331,8 +328,8 @@ function nodesColumn_example(){
 
     // Display
     $('#nodesColumn_example').html('').append(
-        $('<p/>').html('<strong>Sample of nodes</strong> extracted with these settings:').append(
-            $('<button class="btn btn-link">(<i class="icon-refresh"/> sample)</button>').click(nodesColumn_example)
+        $('<p/>').html('<strong>この設定で抽出されたノードの例：</strong>').append(
+            $('<button class="btn btn-link">（<i class="icon-refresh"/> サンプル）</button>').click(nodesColumn_example)
         )
     ).append(
         $('<p/>').append(
@@ -360,24 +357,24 @@ function nodesColumn_set(){
 
 function nodesColumn1_build(parentId){
     $(parentId).html('').append(
-        $('<hr/><h2>2. Nodes</h2>')
+        $('<hr/><h2>2. ノード</h2>')
     ).append(
-        $('<h4><img src="res/x_node.png"> Which column defines the <em>first type</em> of nodes?</h4>')
+        $('<h4><img src="res/x_node.png"> どの列が<em>第1種</em>のノードを定義しますか？</h4>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<select id="nodesCategory1" class="span6"/>')
-                    .append($('<option value="none">Choose a column...</option>'))
+                    .append($('<option value="none">列を選択してください...</option>'))
                     .append(table[0].map(function(d,i){return '<option value="'+i+'">'+d+'</option>';}))
                     .on('change', nodesColumn1_set)
             ).append(
                 $('<select id="nodesMultipleSeparator1" class="span6"/>')
-                    .append($('<option value="nomultiples">One expression per cell</option>'))
-                    .append($('<option value="coma">Comma-separated ","</option>'))
-                    .append($('<option value="semicolon">Semicolon-separated ";"</option>'))
-                    .append($('<option value="dash">Dash-separated "-"</option>'))
-                    .append($('<option value="space">Space-separated " "</option>'))
-                    .append($('<option value="pipe">Pipe-separated "|"</option>'))
+                    .append($('<option value="nomultiples">セルごとに1項目</option>'))
+                    .append($('<option value="coma">カンマ区切り ","</option>'))
+                    .append($('<option value="semicolon">セミコロン区切り ";"</option>'))
+                    .append($('<option value="dash">ダッシュ区切り "-"</option>'))
+                    .append($('<option value="space">スペース区切り " "</option>'))
+                    .append($('<option value="pipe">パイプ区切り "|"</option>'))
                     .on('change', nodesColumn1_set)
             ).append(
                 $('<div class="row"/>').append(
@@ -387,20 +384,19 @@ function nodesColumn1_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'The expressions in this column will define the <strong>first type</strong> of nodes. Some cleaning will be applied (unnecessary spaces, upper case...)'
+                    'この列の値が<em>第1種</em>のノードになります。不要な空白や大文字は整形されます。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>If you have multiple items per cell, specify the separator</strong>. '
-                    +'For instance you have a list of papers, you want a graph of authors and papers, and the cells of the <em>Author</em> column look like this: "Enstein; Erdös; Bacon". '
-                    +'You have multiple authors per cell. Then you have to set the separator, here the semicolon ";".'
+                    '<strong>1セルに複数の項目がある場合は区切り文字を指定してください</strong>。'
+                    +'例えば<em>著者</em>列が "Enstein; Erdös; Bacon" のようになっていればセミコロン ";" を設定します。'
                 )
             )
         )
     ).append(
         $('<div class="row"/>').css('margin-top', '20px').append(
             $('<div class="span12"/>').append(
-                $('<h4><img src="res/x_node.png"> Do you want attributes for the <em>first type</em> of nodes?</h4>')
+                $('<h4><img src="res/x_node.png"> <em>第1種</em>のノードに属性を追加しますか？</h4>')
             )
         )
     ).append(
@@ -411,13 +407,11 @@ function nodesColumn1_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'You may transfer the content of some columns to the network as attributes of the <strong>first type</strong> of nodes. '
-                    +'This feature is only useful under certain circumstances, when the attribute columns actually qualify the node column. '
-                    +'Else, it is possible (and probable) that multiple attributes correspond to a single node. If this happens, the multiple values will be concatenated with the | separator (pipe). '
+                    '<em>第1種</em>のノードに対応する列の内容を属性としてネットワークに渡すことができます。属性列がノード列を正しく説明している場合にのみ有効で、そうでないと複数の属性が1つのノードに対応するため、値はパイプ "|" で連結されます。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>Warning: </strong>Adding metadata may cause a memory overload (a browser crash, not dangerous but you won\'t get any result)'
+                    '<strong>警告：</strong>メタデータを追加するとメモリ不足（ブラウザのクラッシュと結果未取得）が発生するおそれがあります。'
                 )
             )
         )
@@ -439,7 +433,7 @@ function nodesColumn1_build(parentId){
             query.callback(data);
         },
         multiple:true,
-        placeholder: "Select one or several columns",
+        placeholder: "1つ以上の列を選択",
         allowClear: true
     })
 }
@@ -486,8 +480,8 @@ function nodesColumn1_example(){
 
     // Display
     $('#nodesColumn1_example').html('').append(
-        $('<p/>').html('<strong>Sample of nodes</strong> extracted with these settings:').append(
-            $('<button class="btn btn-link">(<i class="icon-refresh"/> sample)</button>').click(nodesColumn1_example)
+        $('<p/>').html('<strong>この設定で抽出されたノードの例：</strong>').append(
+            $('<button class="btn btn-link">（<i class="icon-refresh"/> サンプル）</button>').click(nodesColumn1_example)
         )
     ).append(
         $('<p/>').append(
@@ -509,22 +503,22 @@ function nodesColumn1_set(){
 
 function nodesColumn2_build(parentId){
     $(parentId).html('').append(
-        $('<h4><img src="res/y_node.png"> Which column defines the <em>second type</em> of nodes?</h4>')
+        $('<h4><img src="res/y_node.png"> どの列が<em>第2種</em>のノードを定義しますか？</h4>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<select id="nodesCategory2" class="span6"/>')
-                    .append($('<option value="none">Choose a column...</option>'))
+                    .append($('<option value="none">列を選択してください...</option>'))
                     .append(table[0].map(function(d,i){return '<option value="'+i+'">'+d+'</option>';}))
                     .on('change', nodesColumn2_set)
             ).append(
                 $('<select id="nodesMultipleSeparator2" class="span6"/>')
-                    .append($('<option value="nomultiples">One expression per cell</option>'))
-                    .append($('<option value="coma">Comma-separated ","</option>'))
-                    .append($('<option value="semicolon">Semicolon-separated ";"</option>'))
-                    .append($('<option value="dash">Dash-separated "-"</option>'))
-                    .append($('<option value="space">Space-separated " "</option>'))
-                    .append($('<option value="pipe">Pipe-separated "|"</option>'))
+                    .append($('<option value="nomultiples">セルごとに1項目</option>'))
+                    .append($('<option value="coma">カンマ区切り ","</option>'))
+                    .append($('<option value="semicolon">セミコロン区切り ";"</option>'))
+                    .append($('<option value="dash">ダッシュ区切り "-"</option>'))
+                    .append($('<option value="space">スペース区切り " "</option>'))
+                    .append($('<option value="pipe">パイプ区切り "|"</option>'))
                     .on('change', nodesColumn2_set)
             ).append(
                 $('<div class="row"/>').append(
@@ -534,19 +528,19 @@ function nodesColumn2_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'The expressions in this column will define the <strong>second type</strong> of nodes. '
-                    +'Typically if you have a list of papers and you want a bipartite graph of authors and papers, select <em>Author</em> as the first type of nodes and <em>Title</em> as the second type of nodes. '
+                    'この列の値が<em>第2種</em>のノードになります。'
+                    +'たとえば著者と論文の二部グラフを作る場合、<em>Author</em> 列を第1種、<em>Title</em> 列を第2種として選択してください。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>If you have multiple items per cell, specify the separator</strong>. '
+                    '<strong>1セルに複数の項目がある場合は区切り文字を指定してください</strong>。'
                 )
             )
         )
     ).append(
         $('<div class="row"/>').css('margin-top', '20px').append(
             $('<div class="span12"/>').append(
-                $('<h4><img src="res/y_node.png"> Do you want attributes for the <em>second type</em> of nodes?</h4>')
+                $('<h4><img src="res/y_node.png"> <em>第2種</em>のノードに属性を追加しますか？</h4>')
             )
         )
     ).append(
@@ -557,11 +551,11 @@ function nodesColumn2_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'You may transfer the content of some columns to the network as attributes of the <strong>second type</strong> of nodes. '
+                    '<em>第2種</em>のノードに対応する列の内容を属性としてネットワークに転送できます。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>Warning: </strong>Adding metadata may cause a memory overload (a browser crash, not dangerous but you won\'t get any result)'
+                    '<strong>警告：</strong>メタデータを追加するとメモリ不足（ブラウザのクラッシュと結果未取得）が発生するおそれがあります。'
                 )
             )
         )
@@ -583,7 +577,7 @@ function nodesColumn2_build(parentId){
             query.callback(data);
         },
         multiple:true,
-        placeholder: "Select one or several columns",
+        placeholder: "1つ以上の列を選択",
         allowClear: true
     })
 }
@@ -630,8 +624,8 @@ function nodesColumn2_example(){
 
     // Display
     $('#nodesColumn2_example').html('').append(
-        $('<p/>').html('<strong>Sample of nodes</strong> extracted with these settings:').append(
-            $('<button class="btn btn-link">(<i class="icon-refresh"/> sample)</button>').click(nodesColumn2_example)
+        $('<p/>').html('<strong>この設定で抽出されたノードの例：</strong>').append(
+            $('<button class="btn btn-link">（<i class="icon-refresh"/> サンプル）</button>').click(nodesColumn2_example)
         )
     ).append(
         $('<p/>').append(
@@ -653,9 +647,9 @@ function nodesColumn2_set(){
 
 function nolink_build(parentId){
     $(parentId).html('').append(
-        $('<hr/><h2>3. Links</h2>')
+        $('<hr/><h2>3. リンク</h2>')
     ).append(
-        $('<p>You have nothing to set here.</p>')
+        $('<p>ここで設定する項目はありません。</p>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span12" id="linksCategory_result"/>')
@@ -666,36 +660,35 @@ function nolink_build(parentId){
 
 function citationLinkCategory_build(parentId){
     $(parentId).html('').append(
-        $('<hr/><h2>3. Links</h2>')
+        $('<hr/><h2>3. リンク</h2>')
     ).append(
-        $('<h4><img src="res/edge.png"> Which column defines the citation links?</h4>')
+        $('<h4><img src="res/edge.png"> どの列が引用リンクを定義しますか？</h4>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<select id="citationLinksCategory" class="span6"/>')
-                    .append($('<option value="none">Choose a column...</option>'))
+                    .append($('<option value="none">列を選択してください...</option>'))
                     .append(table[0].map(function(d,i){return '<option value="'+i+'">'+d+'</option>';}))
                     .on('change', citationLinksCategory_set)
             ).append(
                 $('<select id="citationLinksMultipleSeparator" class="span6"/>')
-                    .append($('<option value="nomultiples">One expression per cell</option>'))
-                    .append($('<option value="coma">Comma-separated ","</option>'))
-                    .append($('<option value="semicolon">Semicolon-separated ";"</option>'))
-                    .append($('<option value="dash">Dash-separated "-"</option>'))
-                    .append($('<option value="space">Space-separated " "</option>'))
-                    .append($('<option value="pipe">Pipe-separated "|"</option>'))
+                    .append($('<option value="nomultiples">セルごとに1項目</option>'))
+                    .append($('<option value="coma">カンマ区切り ","</option>'))
+                    .append($('<option value="semicolon">セミコロン区切り ";"</option>'))
+                    .append($('<option value="dash">ダッシュ区切り "-"</option>'))
+                    .append($('<option value="space">スペース区切り " "</option>'))
+                    .append($('<option value="pipe">パイプ区切り "|"</option>'))
                     .on('change', citationLinksCategory_set)
             )
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'The expressions in this column will define the citation links. '
-                    +'<strong>The expressions must match the nodes.</strong> '
-                    +'For instance if the nodes are <em>Paper titles</em> then this column must contain paper titles as well. However do not use the same column. The cited papers may have a different column name like <em>References</em>. '
+                    'この列の値が引用リンクになります。<strong>ノードと一致する値を持つ必要があります。</strong>'
+                    +'例えばノードが<em>論文タイトル</em>なら、この列にも論文タイトルを含め、引用先と同じ列は使わず<em>References</em>など別名の列を利用します。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>You certainly have multiple items per cell, please specify the separator</strong>. '
+                    '<strong>1セルに複数項目があるようです。区切り文字を指定してください</strong>。'
                 )
             )
         )
@@ -706,7 +699,7 @@ function citationLinkCategory_build(parentId){
     ).append(
         $('<div class="row"/>').css('margin-top', '20px').append(
             $('<div class="span12"/>').append(
-                $('<h4><img src="res/edge.png"> Do you want attributes for citation links?</h4>')
+                $('<h4><img src="res/edge.png"> この引用リンクに属性を追加しますか？</h4>')
             )
         )
     ).append(
@@ -717,13 +710,11 @@ function citationLinkCategory_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'You may transfer the content of some columns to the network as attributes of the citation links. '
-                    +'This feature is only useful under certain circumstances, when the attribute columns actually qualify the links column. '
-                    +'In case of multiple values, they will be concatenated with the | separator (pipe). '
+                    '引用リンクに対応する列の内容を属性として扱うことができます。属性列がリンク列を正しく表す場合にのみ有効で、複数の値がある場合はパイプ "|" で連結されます。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>Warning: </strong>Adding metadata may cause a memory overload (a browser crash, not dangerous but you won\'t get any result)'
+                    '<strong>警告：</strong>メタデータを追加するとメモリ不足（ブラウザのクラッシュと結果未取得）が発生するおそれがあります。'
                 )
             )
         )
@@ -745,7 +736,7 @@ function citationLinkCategory_build(parentId){
             query.callback(data);
         },
         multiple:true,
-        placeholder: "Select one or several columns",
+        placeholder: "1つ以上の列を選択",
         allowClear: true
     })
 }
@@ -792,8 +783,8 @@ function citationLinksCategory_example(){
 
     // Display
     $('#citationLinksCategory_example').html('').append(
-        $('<p/>').html('<strong>Sample of items</strong> extracted with these settings:').append(
-            $('<button class="btn btn-link">(<i class="icon-refresh"/> sample)</button>').click(citationLinksCategory_example)
+        $('<p/>').html('<strong>この設定で抽出された項目の例：</strong>').append(
+            $('<button class="btn btn-link">（<i class="icon-refresh"/> サンプル）</button>').click(citationLinksCategory_example)
         )
     ).append(
         $('<p/>').append(
@@ -809,7 +800,7 @@ function citationLinksCategory_set(){
     } else if($("#citationLinksCategory").val() == $("#nodesCategory").val()){
         citationLinksCategory_example()
         $("#citationLinksCategory_example").html('')
-        $("#citationLinksCategory_result").html('<div class="alert"><strong>Warning!</strong> You cannot chose the same column for nodes and links.</div>')
+        $("#citationLinksCategory_result").html('<div class="alert"><strong>警告：</strong>ノードとリンクに同じ列は選べません。</div>')
     } else {
         citationLinksCategory_example()
         additionalsettings_build("#citationLinksCategory_result")
@@ -819,36 +810,34 @@ function citationLinksCategory_set(){
 
 function linksCategory_build(parentId){
     $(parentId).html('').append(
-        $('<hr/><h2>3. Links</h2>')
+        $('<hr/><h2>3. リンク</h2>')
     ).append(
-        $('<h4><img src="res/y_edge.png"> Which column defines the links?</h4>')
+        $('<h4><img src="res/y_edge.png"> どの列がリンクを定義しますか？</h4>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<select id="linksCategory" class="span6"/>')
-                    .append($('<option value="none">Choose a column...</option>'))
+                    .append($('<option value="none">列を選択してください...</option>'))
                     .append(table[0].map(function(d,i){return '<option value="'+i+'">'+d+'</option>';}))
                     .on('change', linksCategory_set)
             ).append(
                 $('<select id="edgesMultipleSeparator" class="span6"/>')
-                    .append($('<option value="nomultiples">One expression per cell</option>'))
-                    .append($('<option value="coma">Comma-separated ","</option>'))
-                    .append($('<option value="semicolon">Semicolon-separated ";"</option>'))
-                    .append($('<option value="dash">Dash-separated "-"</option>'))
-                    .append($('<option value="space">Space-separated " "</option>'))
-                    .append($('<option value="pipe">Pipe-separated "|"</option>'))
+                    .append($('<option value="nomultiples">セルごとに1項目</option>'))
+                    .append($('<option value="coma">カンマ区切り ","</option>'))
+                    .append($('<option value="semicolon">セミコロン区切り ";"</option>'))
+                    .append($('<option value="dash">ダッシュ区切り "-"</option>'))
+                    .append($('<option value="space">スペース区切り " "</option>'))
+                    .append($('<option value="pipe">パイプ区切り "|"</option>'))
                     .on('change', linksCategory_set)
             )
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'The expressions in this column will define the links. '
-                    +'<strong>Two nodes will be linked when they have an item in common in this column.</strong> '
-                    +' Some cleaning will be applied (unnecessary spaces, upper case...) '
+                    'この列の値がリンクになります。<strong>この列に共通項目があるノード同士がつながります。</strong>不要な空白や大文字は整形されます。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>If you have multiple items per cell, specify the separator</strong>. '
+                    '<strong>1セルに複数項目がある場合は区切り文字を指定してください</strong>。'
                 )
             )
         )
@@ -859,7 +848,7 @@ function linksCategory_build(parentId){
     ).append(
         $('<div class="row"/>').css('margin-top', '20px').append(
             $('<div class="span12"/>').append(
-                $('<h4><img src="res/y_edge.png"> Do you want links attributes?</h4>')
+                $('<h4><img src="res/y_edge.png"> このリンクに属性を追加しますか？</h4>')
             )
         )
     ).append(
@@ -870,13 +859,11 @@ function linksCategory_build(parentId){
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'You may transfer the content of some columns to the network as attributes of the links. '
-                    +'This feature is only useful under certain circumstances, when the attribute columns actually qualify the links column. '
-                    +'In case of multiple values, they will be concatenated with the | separator (pipe). '
+                    'いくつかの列の内容をリンクの属性として扱えます。属性列がリンク列を正しく説明している場合に有効で、それ以外では複数の値をパイプ "|" で連結します。'
                 )
             ).append(
                 $('<p class="text-info"/>').html(
-                    '<strong>Warning: </strong>Adding metadata may cause a memory overload (a browser crash, not dangerous but you won\'t get any result)'
+                    '<strong>警告：</strong>メタデータを追加するとメモリ不足（ブラウザのクラッシュと結果未取得）が発生するおそれがあります。'
                 )
             )
         )
@@ -898,7 +885,7 @@ function linksCategory_build(parentId){
             query.callback(data);
         },
         multiple:true,
-        placeholder: "Select one or several columns",
+        placeholder: "1つ以上の列を選択",
         allowClear: true
     })
 }
@@ -945,8 +932,8 @@ function linksCategory_example(){
 
     // Display
     $('#linksCategory_example').html('').append(
-        $('<p/>').html('<strong>Sample of items</strong> extracted with these settings:').append(
-            $('<button class="btn btn-link">(<i class="icon-refresh"/> sample)</button>').click(linksCategory_example)
+        $('<p/>').html('<strong>この設定で抽出された項目の例：</strong>').append(
+            $('<button class="btn btn-link">（<i class="icon-refresh"/> サンプル）</button>').click(linksCategory_example)
         )
     ).append(
         $('<p/>').append(
@@ -962,7 +949,7 @@ function linksCategory_set(){
     } else if($("#linksCategory").val() == $("#nodesCategory").val()){
         linksCategory_example()
         $("#linksCategory_example").html('')
-        $("#linksCategory_result").html('<div class="alert"><strong>Warning!</strong> You cannot chose the same column for nodes and links.</div>')
+        $("#linksCategory_result").html('<div class="alert"><strong>警告：</strong>ノードとリンクに同じ列は選べません。</div>')
     } else {
         linksCategory_example()
         additionalsettings_build("#linksCategory_result")
@@ -972,66 +959,64 @@ function linksCategory_set(){
 
 function additionalsettings_build(parentId){
     $(parentId).html('').append(
-        $('<hr/><h2>4. Additional settings</h2>')
+        $('<hr/><h2>4. 追加設定</h2>')
     ).append(
-        $('<h4>Optional: time series</h4>')
+        $('<h4>オプション：時系列</h4>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<select id="temporality" class="span6"/>')
-                    .append($('<option value="none">No temporal data</option>'))
+                    .append($('<option value="none">時間情報なし</option>'))
                     .append(table[0].map(function(d,i){return '<option value="'+i+'">'+d+'</option>';}))
                     //.on('change', linksCategory_set)
             ).append(
-                $('<span class="help-block">Select only a column containing <strong>integers</strong>.</span>')
+                $('<span class="help-block"><strong>整数</strong>のみ含む列を選択してください。</span>')
             )
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'You may select an attribute a column describing time. '
-                    +'<strong>It will only work if it contains integers</strong> (1, 2, 3...), and thus typically works with <strong>years</strong>. '
-                    +'It does not handle full dates. '
+                    '時間を表す列を属性として選択できます。<strong>整数（1, 2, 3...）のみ</strong>を含む列（多くの場合は<strong>年</strong>）で動作し、完全な日付には対応しません。'
                 )
             )
         )
     ).append(
-        $('<h4>Optional: edge weight</h4>')
+        $('<h4>オプション：エッジの重み</h4>')
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<select id="edgeWeight" class="span6"/>')
-                    .append($('<option value="false" selected="true">No weight</option>'))
-                    .append($('<option value="true">Weight the edges</option>'))
+                    .append($('<option value="false" selected="true">重みなし</option>'))
+                    .append($('<option value="true">エッジに重みを付ける</option>'))
                     //.on('change', linksCategory_set)
             )
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'Links are naturally ranked by the number of rows matching in the table between the connected nodes. You may choose to weight the links according to it. '
+                    'リンクは接続されたノード間で一致する行数によって自然にランク付けされています。必要であれば、その値をエッジの重みとして扱えます。'
                 )
             )
         )
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span12"/>').append(
-                $('<hr/><h2>5. Build the network</h2>')
+                $('<hr/><h2>5. ネットワークを構築</h2>')
             )
         )
     ).append(
         $('<div class="row"/>').append(
             $('<div class="span6"/>').append(
                 $('<div id="build_container"/>').append(
-                    $('<button value="Build" class="btn btn-block btn-primary"><i class="icon-download icon-white"/> Build and download the network (GEXF)</button>')
+                    $('<button value="Build" class="btn btn-block btn-primary"><i class="icon-download icon-white"/> ネットワーク（GEXF）を構築してダウンロード</button>')
                         .click(buildGraph)
                 ).append(
-                    $('<span class="help-block"/>').text('NB: this may take a while, please be patient.')
+                    $('<span class="help-block"/>').text('※処理に時間がかかる場合があります。しばらくお待ちください。')
                 )
             )
         ).append(
             $('<div class="span6"/>').append(
                 $('<p class="text-info"/>').html(
-                    'After building the network, the download will trigger automatically. '
-                    +'The network file is a <strong>GEXF</strong>, the <a href="http://gephi.org">Gephi</a> file format. '
+                    'ネットワークの構築後、自動的にダウンロードが始まります。'
+                    +'生成されるファイルは<strong>GEXF</strong>（<a href="http://gephi.org">Gephi</a>のファイル形式）です。'
                 )
             )
         )
@@ -1469,15 +1454,15 @@ function buildGraph_(){
         links = getMonopartiteLinks(nodesColumnId, nodesMultiples, nodesSeparator, linksColumnId, linksMultiples, linksSeparator);
         
         // HTML Summary
-        htmlSummary += "<li>Extraction settings:<ul>";
-        htmlSummary += "<li>Type of graph: Simple (one type of node)</li>";
-        htmlSummary += '<li><img src="res/x_node.png"> Nodes are from column n° '+nodesColumnId+': '+xmlEntities(tableHeader[nodesColumnId])+'</li>';
+        htmlSummary += "<li>抽出設定：<ul>";
+        htmlSummary += "<li>グラフの種類：通常（単一ノード）</li>";
+        htmlSummary += '<li><img src="res/x_node.png"> ノード：列番号 '+nodesColumnId+'（'+xmlEntities(tableHeader[nodesColumnId])+'）</li>';
         if(nodesMultiples){
-            htmlSummary += "<li>There are multiple nodes per cell, separated by \""+nodesSeparator+"\"</li>";
+            htmlSummary += "<li>1セルに複数のノードがあります（区切り文字：\""+nodesSeparator+"\"）</li>";
         }
-        htmlSummary += '<li><img src="res/y_edge.png"> Links are from column n° '+linksColumnId+": "+xmlEntities(tableHeader[linksColumnId])+"</li>";
+        htmlSummary += '<li><img src="res/y_edge.png"> リンク：列番号 '+linksColumnId+'（'+xmlEntities(tableHeader[linksColumnId])+'）</li>';
         if(linksMultiples){
-            htmlSummary += "<li>There are multiple links per cell, separated by \""+linksSeparator+"\"</li>";
+            htmlSummary += "<li>1セルに複数のリンクがあります（区切り文字：\""+linksSeparator+"\"）</li>";
         }
         htmlSummary += "</ul></li>";
 
@@ -1520,20 +1505,20 @@ function buildGraph_(){
         links = getBipartiteLinks(nodesColumnId1, nodesMultiples1, nodesSeparator1, nodesColumnId2, nodesMultiples2, nodesSeparator2);
 
         // HTML Summary
-        htmlSummary += "<li>Extraction settings:<ul>";
-        htmlSummary += "<li>Type of graph: Bipartite</li>";
-        htmlSummary += "<li>Nodes are:<ul>"
-        htmlSummary += '<li><img src="res/x_node.png"> From column n° '+nodesColumnId1+": "+xmlEntities(tableHeader[nodesColumnId1])+"</li>";
+        htmlSummary += "<li>抽出設定：<ul>";
+        htmlSummary += "<li>グラフの種類：二部グラフ</li>";
+        htmlSummary += "<li>ノード：<ul>";
+        htmlSummary += '<li><img src="res/x_node.png"> 列番号 '+nodesColumnId1+'（'+xmlEntities(tableHeader[nodesColumnId1])+'）</li>';
         if(nodesMultiples1){
-            htmlSummary += "<li>With multiple nodes per cell, separated by \""+nodesSeparator1+"\"</li>";
+            htmlSummary += "<li>1セルに複数のノードがあります（区切り文字：\""+nodesSeparator1+"\"）</li>";
         }
-        htmlSummary += '<li><img src="res/y_node.png"> And from column n° '+nodesColumnId2+": "+xmlEntities(tableHeader[nodesColumnId2])+"</li>";
+        htmlSummary += '<li><img src="res/y_node.png"> 列番号 '+nodesColumnId2+'（'+xmlEntities(tableHeader[nodesColumnId2])+'）</li>';
         if(nodesMultiples2){
-            htmlSummary += "<li>With multiple nodes per cell, separated by \""+nodesSeparator2+"\"</li>";
+            htmlSummary += "<li>1セルに複数のノードがあります（区切り文字：\""+nodesSeparator2+"\"）</li>";
         }
-        htmlSummary += "</ul>"
+        htmlSummary += "</ul>";
         
-        htmlSummary += "<li>Links are just connexions between them (same row in the table)</li>";
+        htmlSummary += "<li>リンクは同じ行のノード同士を接続します</li>";
         htmlSummary += "</ul></li>";
         
     } else if(typeOfGraph == "citation"){
@@ -1575,15 +1560,15 @@ function buildGraph_(){
         links = getCitationLinks(nodesColumnId, nodesMultiples, nodesSeparator, citationLinksColumnId, citationLinksMultiples, citationLinksSeparator);
         
         // HTML Summary
-        htmlSummary += "<li>Extraction settings:<ul>";
-        htmlSummary += "<li>Type of graph: Citation graph</li>";
-        htmlSummary += '<li><img src="res/x_node.png"> Nodes are from column n° '+nodesColumnId+": "+xmlEntities(tableHeader[nodesColumnId])+"</li>";
+        htmlSummary += "<li>抽出設定：<ul>";
+        htmlSummary += "<li>グラフの種類：引用グラフ</li>";
+        htmlSummary += '<li><img src="res/x_node.png"> ノード：列番号 '+nodesColumnId+'（'+xmlEntities(tableHeader[nodesColumnId])+'）</li>';
         if(nodesMultiples){
-            htmlSummary += "<li>And there are multiple nodes per cell, separated by \""+nodesSeparator+"\"</li>";
+            htmlSummary += "<li>1セルに複数のノードがあります（区切り文字：\""+nodesSeparator+"\"）</li>";
         }
-        htmlSummary += '<li><img src="res/edge.png"> Links are from column n° '+citationLinksColumnId+": "+xmlEntities(tableHeader[citationLinksColumnId])+"</li>";
+        htmlSummary += '<li><img src="res/edge.png"> リンク：列番号 '+citationLinksColumnId+'（'+xmlEntities(tableHeader[citationLinksColumnId])+'）</li>';
         if(citationLinksMultiples){
-            htmlSummary += "<li>And there are multiple links per cell, separated by \""+citationLinksSeparator+"\"</li>";
+            htmlSummary += "<li>1セルに複数のリンクがあります（区切り文字：\""+citationLinksSeparator+"\"）</li>";
         }
         htmlSummary += "</ul></li>";
         
@@ -1610,20 +1595,20 @@ function buildGraph_(){
         links = [];
         
         // HTML Summary
-        htmlSummary += "<li>Extraction settings:<ul>";
-        htmlSummary += "<li>Type of graph: No links</li>";
-        htmlSummary += '<li><img src="res/x_node.png"> Nodes are from column n° '+nodesColumnId+": "+xmlEntities(tableHeader[nodesColumnId])+"</li>";
+        htmlSummary += "<li>抽出設定：<ul>";
+        htmlSummary += "<li>グラフの種類：リンクなし</li>";
+        htmlSummary += '<li><img src="res/x_node.png"> ノード：列番号 '+nodesColumnId+'（'+xmlEntities(tableHeader[nodesColumnId])+'）</li>';
         if(nodesMultiples){
-            htmlSummary += "<li>And there are multiple nodes per cell, separated by \""+nodesSeparator+"\"</li>";
+            htmlSummary += "<li>1セルに複数のノードがあります（区切り文字：\""+nodesSeparator+"\"）</li>";
         }
-        htmlSummary += "<li>There are no links</li>";
+        htmlSummary += "<li>リンクはありません</li>";
         htmlSummary += "</ul></li>";
     }
     
     // HTML Summary
-    htmlSummary += "<li>Graph topology:<ul>";
-    htmlSummary += "<li>"+nodes.length+" Nodes</li>";
-    htmlSummary += "<li>"+links.length+" Edges</li>";
+    htmlSummary += "<li>グラフ構造：<ul>";
+    htmlSummary += "<li>"+nodes.length+" ノード</li>";
+    htmlSummary += "<li>"+links.length+" エッジ</li>";
     htmlSummary += "</ul></li>";
     
     // Metadata
@@ -1665,24 +1650,24 @@ function buildGraph_(){
     }
     
     // HTML Summary
-    htmlSummary += "<li>Metadata:<ul>";
+    htmlSummary += "<li>メタデータ：<ul>";
     if(nodesExportedColumnIds.length>0){
-        htmlSummary += "<li>Nodes inherit from the source table:<ul>";
+        htmlSummary += "<li>ノードの属性：<ul>";
         htmlSummary += nodesExportedColumnIds.map(function(colId){
-            return "<li>Column n° "+colId+": "+xmlEntities(tableHeader[colId])+"</li>";
+            return "<li>列番号 "+colId+"： "+xmlEntities(tableHeader[colId])+"</li>";
         }).join("");
         htmlSummary += "</ul></li>";
     } else {
-        htmlSummary += "<li>Nodes have no metadata</li>";
+        htmlSummary += "<li>ノードにメタデータはありません</li>";
     }
     if(linksExportedColumnIds.length>0){
-        htmlSummary += "<li>Links inherit from the source table:<ul>";
+        htmlSummary += "<li>リンクの属性：<ul>";
         htmlSummary += linksExportedColumnIds.map(function(colId){
-            return "<li>Column n° "+colId+": "+xmlEntities(tableHeader[colId])+"</li>";
+            return "<li>列番号 "+colId+"： "+xmlEntities(tableHeader[colId])+"</li>";
         }).join("");
         htmlSummary += "</ul></li>";
     } else {
-        htmlSummary += "<li>Links have no metadata</li>";
+        htmlSummary += "<li>リンクにメタデータはありません</li>";
     }
     htmlSummary += "</ul></li>";
     
@@ -1697,7 +1682,9 @@ function buildGraph_(){
     }
 
     // HTML Summary
-    htmlSummary += "<li>Temporality: "+dynMode+((dynColumnId>=0)?(", defined by column n° "+dynColumnId+": "+xmlEntities(tableHeader[dynColumnId])+""):(""))+"</li>";
+    var dynLabel = (dynMode == 'none') ? 'なし' : '年';
+    var dynDetails = (dynColumnId>=0) ? ('（列番号 '+dynColumnId+'： '+xmlEntities(tableHeader[dynColumnId])+'）') : '';
+    htmlSummary += "<li>時間情報："+dynLabel+dynDetails+"</li>";
     
     
       /////////////////////////
@@ -2009,10 +1996,10 @@ function buildGraph_(){
     var blob = new Blob(content, {'type':'text/gexf+xml;charset=utf-8'})
         ,filename = "Network.gexf"
     if(navigator.userAgent.match(/firefox/i))
-       alert('Note:\nFirefox does not handle file names, so you will have to rename this file to\n\"'+filename+'\""\nor some equivalent.')
+       alert('注意:\nFirefox はファイル名を扱えないため、ダウンロード後に\n\"'+filename+'\" に名前を変更してください。')
     saveAs(blob, filename)
 
-    $('#build_container').html('<div class="alert alert-success">GEXF downloaded <button type="button" class="close" data-dismiss="alert">&times;</button></div>')
+    $('#build_container').html('<div class="alert alert-success">GEXF をダウンロードしました <button type="button" class="close" data-dismiss="alert">&times;</button></div>')
 
 }
 
